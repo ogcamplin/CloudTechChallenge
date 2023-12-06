@@ -20,7 +20,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::726363461405:role/GithubEcrUser
+          role-to-assume: arn:aws:iam::726363461405:role/GithubOIDCPowerUserAccess
           role-session-name: ecr-upload-role
           aws-region: us-east-1
 
@@ -56,8 +56,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::726363461405:role/GithubTerraformUser
-          role-session-name: terraform-deployment-role
+          role-to-assume: arn:aws:iam::726363461405:role/GithubOIDCPowerUserAccess
+          role-session-name: github-deployment
           aws-region: ap-southeast-2
     
       - name: Checkout
