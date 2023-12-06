@@ -15,3 +15,25 @@ variable "azs" {
   default     = ["ap-southeast-2a", "ap-southeast-2b"]
   description = "AZs to deploy subnets to"
 }
+
+variable "db_config" {
+  type = object({
+    db_port     = number
+    db_user     = string
+    db_password = string
+    db_name     = string
+    db_type     = string
+  })
+
+  default = {
+    db_port     = "5432"
+    db_user     = "postgres"
+    db_password = "changeme"
+    db_type     = "postgres"
+    db_name     = "app"
+  }
+
+  sensitive = true
+
+  description = "Configuration parameters for the RDS database"
+}
