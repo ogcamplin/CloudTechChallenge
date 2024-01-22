@@ -11,7 +11,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 }
 
-resource "aws_route_table" "public" {
+resource "aws_route_table" "public_alb" {
   vpc_id = aws_vpc.main.id
 
   route {
@@ -20,7 +20,13 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_subnet" "public_web" {
+resource "aws_route_table_association" "public_alb" {
+  count = length(var.azs)
+  subnet_id = aws_subnet.public_alb[count.index].id
+  route_table_id = aws_route_table.public_alb.id
+}
+
+resource "aws_subnet" "public_alb" {
   vpc_id = aws_vpc.main.id
   count = length(var.azs)
 
@@ -29,7 +35,7 @@ resource "aws_subnet" "public_web" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "subnet-${var.azs[count.index]}-public-cloudtechchallenge-web"
+    Name = "subnet-${var.azs[count.index]}-public-cloudtechchallenge-alb"
   }
 }
 
@@ -55,6 +61,6 @@ resource "aws_subnet" "private_database" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "subnet-${var.azs[count.index]}-private-cloudtechchallenge-application"
+    Name = "subnet-${var.azs[count.index]}-private-cloudtechchallenge-database"
   }
 }
