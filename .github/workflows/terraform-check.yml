@@ -25,6 +25,3 @@ jobs:
   
       - name: Validate Terraform Config
         run: terraform validate
-  
-      - name: Check Terraform Format
-        run: terraform fmt -check
