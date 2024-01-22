@@ -37,4 +37,8 @@ module "ecs_cluster" {
 #   db_config          = var.db_config
 #   subnet_ids         = module.networking.database_subnet_ids
 #   security_group_ids = [module.security_groups.security_groups["database"]]
+<<<<<<< HEAD
 # }
+=======
+# }
+>>>>>>> 830a761 (Add compute + refactor)
