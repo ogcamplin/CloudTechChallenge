@@ -46,7 +46,7 @@ module "ecs" {
       container_definitions = {
         image = "public.ecr.aws/x6e3r3m8/ogc-cloudtechchallenge-public:latest"
         portMappings = [
-          { containerPort = var.app_port, hostPort = var.app_port , protocol = "tcp"}
+          { containerPort = var.app_port, hostPort = var.app_port, protocol = "tcp"}
         ]
 
         environment = [

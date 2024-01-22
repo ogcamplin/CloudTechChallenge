@@ -5,7 +5,7 @@ on:
       - master
 
 env:
-  ROLE_TO_ASSUME: arn:aws:iam::726363461405:role/GithubOIDCDeveloper
+  ROLE_TO_ASSUME: arn:aws:iam::726363461405:role/GithubOIDCDeployment
 
 permissions:
   id-token: write
