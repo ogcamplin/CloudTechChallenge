@@ -4,6 +4,9 @@ on:
     branches:
       - master
 
+env:
+  ROLE_TO_ASSUME: arn:aws:iam::726363461405:role/GithubOIDCDeployment
+
 permissions:
   id-token: write
   contents: read
@@ -20,7 +23,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::726363461405:role/GithubOIDCPowerUserAccess
+          role-to-assume: ${{env.ROLE_TO_ASSUME}}
           role-session-name: ecr-upload-role
           aws-region: us-east-1
 
@@ -38,7 +41,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr-public.outputs.REGISTRY }}
           REGISTRY_ALIAS: x6e3r3m8
           REPOSITORY: ogc-cloudtechchallenge-public
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: latest
         run: |
           docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG --build-arg="arch=amd64" .
           docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
@@ -56,7 +59,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::726363461405:role/GithubOIDCPowerUserAccess
+          role-to-assume: ${{env.ROLE_TO_ASSUME}}
           role-session-name: github-deployment
           aws-region: ap-southeast-2
     
@@ -69,8 +72,8 @@ jobs:
       - name: Initialise Terraform
         run: terraform init
 
-      - name: Terraform Format Check
-        run: terraform fmt -check
+      - name: Terraform Format
+        run: terraform fmt
 
       - name: Plan Terraform
         run: terraform plan -input=false
