@@ -4,7 +4,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
   
   tags = {
-    Name = "vpc-${var.aws_region}-cloudtechchallenge"
+    Name = "vpc-${var.aws_region}-${var.application_name}"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_subnet" "public_alb" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "subnet-${var.azs[count.index]}-public-cloudtechchallenge-alb"
+    Name = "subnet-${var.azs[count.index]}-public-${var.application_name}-alb"
   }
 }
 
@@ -49,64 +49,9 @@ resource "aws_subnet" "private_application" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "subnet-${var.azs[count.index]}-private-cloudtechchallenge-application"
+    Name = "subnet-${var.azs[count.index]}-private-${var.application_name}-application"
   }
 }
-
-# resource "aws_cloudwatch_log_group" "application" {
-#   for_each = toset([ for v in aws_subnet.private_application : v.tags["Name"]])
-#   name = "${each.value}-flow-logs"
-#   retention_in_days = 1
-# }
-
-# resource "aws_flow_log" "application" {
-#   for_each = { for v in aws_subnet.private_application : v.tags["Name"] => v}
-#   traffic_type = "ALL"
-#   log_destination = aws_cloudwatch_log_group.application[each.key].arn
-#   log_destination_type = "cloud-watch-logs"
-#   iam_role_arn = aws_iam_role.application_flow_log.arn
-#   subnet_id = each.value.id
-# }
-
-# resource "aws_iam_role" "application_flow_log" {
-#   name = "FlowLogCloudWatch"
-#   assume_role_policy = data.aws_iam_policy_document.application_flow_log_trust.json
-# }
-
-# data "aws_iam_policy_document" "application_flow_log_trust" {
-#   statement {
-#     effect = "Allow"
-
-#     principals {
-#       type        = "Service"
-#       identifiers = ["vpc-flow-logs.amazonaws.com"]
-#     }
-
-#     actions = ["sts:AssumeRole"]
-#   }
-# }
-
-# data "aws_iam_policy_document" "application_flow_log" {
-#   statement {
-#     effect = "Allow"
-
-#     actions = [
-#       "logs:CreateLogGroup",
-#       "logs:CreateLogStream",
-#       "logs:PutLogEvents",
-#       "logs:DescribeLogGroups",
-#       "logs:DescribeLogStreams",
-#     ]
-
-#     resources = ["*"]
-#   }
-# }
-
-# resource "aws_iam_role_policy" "application_flow_log" {
-#   name   = "FlowLogCloudWatchAccess"
-#   role   = aws_iam_role.application_flow_log.id
-#   policy = data.aws_iam_policy_document.application_flow_log.json
-# }
 
 resource "aws_subnet" "private_database" {
   vpc_id = aws_vpc.main.id
@@ -117,6 +62,6 @@ resource "aws_subnet" "private_database" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "subnet-${var.azs[count.index]}-private-cloudtechchallenge-database"
+    Name = "subnet-${var.azs[count.index]}-private-${var.application_name}-database"
   }
 }

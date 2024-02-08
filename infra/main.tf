@@ -3,6 +3,7 @@ module "networking" {
   vpc_cidr_block = var.vpc_cidr_block
   azs            = var.azs
   aws_region     = var.aws_region
+  application_name = var.application_name
 }
 
 module "security_groups" {
@@ -14,15 +15,15 @@ module "security_groups" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_endpoint_type = "Gateway"
   vpc_id = module.networking.vpc_id
-  service_name = "com.amazonaws.ap-southeast-2.s3"
+  service_name = "com.amazonaws.${var.aws_region}.s3"
   route_table_ids = [aws_route_table.application.id]
 }
 
 resource "aws_vpc_endpoint" "interface" {
   for_each = {
-    ecr_dkr = "com.amazonaws.ap-southeast-2.ecr.dkr"
-    ecr_api = "com.amazonaws.ap-southeast-2.ecr.api"
-    cloudwatch_logs = "com.amazonaws.ap-southeast-2.logs"
+    ecr_dkr = "com.amazonaws.${var.aws_region}.ecr.dkr"
+    ecr_api = "com.amazonaws.${var.aws_region}.ecr.api"
+    cloudwatch_logs = "com.amazonaws.${var.aws_region}.logs"
   }
   
   vpc_endpoint_type = "Interface"
@@ -72,7 +73,7 @@ locals {
       db_host = "10.0.1.5" # module.database.db_instance_address,
       listen_host = "0.0.0.0",
       listen_port = var.app_port
-      container_name = "cloudtechchallenge-container"
+      container_name = "${var.application_name}-container"
     },
     var.db_config,
   )
@@ -80,7 +81,7 @@ locals {
 
 module "cloudtechchallenge_alb" {
   source = "terraform-aws-modules/alb/aws"
-  name = "cloudtechchallenge-alb"
+  name = "${var.application_name}-alb"
   vpc_id = module.networking.vpc_id
   subnets = module.networking.web_subnet_ids
   enable_deletion_protection = false
@@ -112,7 +113,7 @@ module "cloudtechchallenge_alb" {
 
 module "cloudtechchallenge_ecs_cluster" {
   source = "terraform-aws-modules/ecs/aws"
-  cluster_name = "cloudtechchallenge-application-cluster"
+  cluster_name = "${var.application_name}-application-cluster"
   create_cloudwatch_log_group = false
 
   fargate_capacity_providers = {
@@ -125,15 +126,15 @@ module "cloudtechchallenge_ecs_cluster" {
   }
 
   services = {
-    cloudtechchallenge = {
+    var.application_name = {
       cpu = 512
       memory = 1024
       enable_execute_command = true
 
       container_definitions = {
-        cloudtechchallenge-container = {
+        local.app_env_config["container_name"] = {
           name = local.app_env_config["container_name"]
-          image = "726363461405.dkr.ecr.ap-southeast-2.amazonaws.com/ogc-cloudtechchallenge-private:latest"
+          image = "726363461405.dkr.ecr.${var.aws_region}.amazonaws.com/ogc-cloudtechchallenge-private:latest"
           port_mappings = [
             { containerPort = local.app_env_config["listen_port"], hostPort = local.app_env_config["listen_port"], protocol = "tcp"}
           ]
@@ -142,9 +143,8 @@ module "cloudtechchallenge_ecs_cluster" {
           log_configuration = {
             logDriver = "awslogs",
             options= {
-              awslogs-group = "/aws/ecs/cloudtechchallenge/cloudtechchallenge-container",
-              awslogs-region = "ap-southeast-2", #TODO parameterize
-              awslogs-stream-prefix = "cloudtechchallenge"
+              awslogs-group = "/aws/ecs/${var.application_name}/${local.app_env_config["container_name"]}",
+              awslogs-region = var.aws_region
             }
           }
 
