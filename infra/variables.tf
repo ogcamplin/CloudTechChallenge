@@ -16,6 +16,11 @@ variable "azs" {
   description = "AZs to deploy subnets to"
 }
 
+variable "app_port" {
+  type = number
+  default = 3000
+}
+
 variable "db_config" {
   type = object({
     db_port     = number
