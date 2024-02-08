@@ -1,5 +1,5 @@
 ARG arch
-FROM --platform=linux/amd64 golang:alpine AS build
+FROM --platform=linux/amd64 golang:1.21.7-alpine AS build
 
 RUN apk add --no-cache curl git alpine-sdk
 
