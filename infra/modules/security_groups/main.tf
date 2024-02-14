@@ -1,5 +1,6 @@
 variable "vpc_id" {}
-variable "db_config" {}
+variable "db_port" {}
+variable "app_port" {}
 
 resource "aws_security_group" "alb" {
   vpc_id = var.vpc_id
@@ -63,8 +64,8 @@ resource "aws_security_group" "database" {
   name = "database_sg"
 
   ingress {
-    from_port = var.db_config["db_port"]
-    to_port = var.db_config["db_port"]
+    from_port = var.db_port
+    to_port = var.db_port
     protocol = "tcp"
     security_groups = ["${aws_security_group.application.id}"]
   }

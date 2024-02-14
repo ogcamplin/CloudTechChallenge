@@ -20,19 +20,15 @@ variable "app_port" {
   description = "Port that the application listens on"
 }
 
-variable "db_config" {
-  type = object({
-    db_port     = number
-    db_user     = string
-    db_password = string
-    db_name     = string
-    db_type     = string
-  })
-
-  sensitive = true
-  description = "Configuration parameters for the RDS database"
+variable "account_id" {
+  type = number
 }
 
 variable "application_name" {
   type = string
+}
+
+variable "db_port" {
+  type = number
+  default = 5432
 }
